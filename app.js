@@ -25,12 +25,33 @@ app.get('/' , (req , res) => {
     res.send('working');
 })
 
-app.get('/makecampgrounds' , async (req , res) => {
-    const camp = new Campground({title : 'My Backyard'})
-    await camp.save();
-    res.send(camp);
-})
+app.get('/campgrounds', async (req , res) => {
+    const campgrounds = await Campground.find({});
+
+    res.render('index' , {campgrounds});
+});
+
+app.get('/campgrounds/new' , (req , res) => {
+    res.render('new');
+});
+
+app.post('/campgrounds/new' , async (req , res) => {
+    const {title , location} = req.body;
+
+    await Campground.insertOne({'title' : `${title}`} , {'location' : `${location}`})
+});
+
+app.get('/campgrounds/:id' , async (req , res) => {
+    const id = req.params.id;
+    const campground = await Campground.findById(id);
+
+    res.render('show' , {campground});
+});
+
+
+
+
 
 app.listen(port , () => {
     console.log(`listening on port ${port}`);
-})
+});
