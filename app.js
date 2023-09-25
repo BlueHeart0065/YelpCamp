@@ -38,7 +38,13 @@ app.get('/campgrounds/new' , (req , res) => {
 app.post('/campgrounds/new' , async (req , res) => {
     const {title , location} = req.body;
 
-    await Campground.insertOne({'title' : `${title}`} , {'location' : `${location}`})
+    const camp = new Campground({
+        title : title,
+        location : location
+    });
+
+    await camp.save();
+    res.redirect(`/campgrounds/${camp.id}`);
 });
 
 app.get('/campgrounds/:id' , async (req , res) => {
