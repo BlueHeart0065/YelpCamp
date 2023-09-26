@@ -1,19 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Campground</title>
-</head>
-<body>
-    <h1>Create new campground</h1>
+<% layout('layouts/boilerplate') %>
 
-    <form action="/campgrounds/new" method="post">
-        <label for="title">Enter title for the campground : </label><br>
-        <input type="text" name="title" id="title"><br>
-        <label for="location">Enter location of the campground : </label><br>
-        <input type="text" name="location" id="location"><br>
-        <button>Submit</button>
-    </form>
-</body>
-</html>
+<h1>Create new campground</h1>
+
+<form action="/campgrounds/new" method="post">
+    <label for="title">Enter title for the campground : </label><br>
+    <input type="text" name="title" id="title"><br>
+    <label for="location">Enter location of the campground : </label><br>
+    <input type="text" name="location" id="location"><br>
+    <button>Submit</button>
+</form>
+
+<a href="/campgrounds">
+    <button>Back</button>
+</a>
