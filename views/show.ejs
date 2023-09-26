@@ -8,6 +8,11 @@
     <%= campground.location %>
 </h3>
 
+<img src="<%= campground.image %>" alt="">
+
+<p><%= campground.description %></p>
+<p>Price : Rs.<%= campground.price %></p>
+
 <a href="/campgrounds/<%= campground.id %>/edit">
     <button>Edit</button>
 </a>
