@@ -10,12 +10,12 @@ const ejsMate = require('ejs-mate');
 const app = express();
 const port = 3000;
 
+app.use(express.static(path.join(__dirname , 'public')));
+app.use(express.static(path.join(__dirname , 'views')));
 app.set('view engine', 'ejs');
 app.engine('ejs',ejsMate);
 app.use(express.json());
 app.use(express.urlencoded({extended : true}));
-app.use(express.static(path.join(__dirname , 'public')));
-app.use(express.static(path.join(__dirname , 'views')));
 app.use(methodOverride('_method'));
 
 mongoose.connect('mongodb://127.0.0.1:27017/Campground').then(() => {
@@ -39,16 +39,25 @@ app.get('/campgrounds/new' , (req , res) => {
     res.render('new');
 });
 
-app.post('/campgrounds/new' , async (req , res) => {
-    const {title , location} = req.body;
+app.post('/campgrounds/new' , async (req , res , next) => {
 
-    const camp = new Campground({
-        title : title,
-        location : location
-    });
+    try{
 
-    await camp.save();
-    res.redirect(`/campgrounds/${camp.id}`);
+        const {title , location , image , price , description} = req.body;
+    
+        const camp = new Campground({
+            title : title,
+            location : location,
+            image : image,
+            price : price,
+            description : description
+        });
+    
+        await camp.save();
+        res.redirect(`/campgrounds/${camp.id}`);
+    }catch (e){
+        next(e);
+    }
 });
 
 app.get('/campgrounds/:id/edit' , async (req , res) => {
@@ -61,10 +70,19 @@ app.get('/campgrounds/:id/edit' , async (req , res) => {
 
 app.put('/campgrounds/:id/edit' , async (req , res) => {
     const id = req.params.id;
-    const {title , location} = req.body;
-    await Campground.findByIdAndUpdate(id , {'title' : title , 'location' : location});
+    const {title , location , image , price , description} = req.body;
+
+    await Campground.findByIdAndUpdate(id , {'title' : title , 'location' : location , 'image' : image , 'price' : price , 'description' : description});
+
     res.redirect(`/campgrounds/${id}`);
 })
+
+app.delete('/campgrounds/:id' , async (req , res) => {
+    const id = req.params.id;
+    
+    await Campground.findByIdAndDelete(id);
+    res.redirect('/campgrounds');
+});
 
 app.get('/campgrounds/:id' , async (req , res) => {
     const id = req.params.id;
@@ -73,11 +91,9 @@ app.get('/campgrounds/:id' , async (req , res) => {
     res.render('show' , {campground});
 });
 
-app.delete('/campgrounds/:id' , async (req , res) => {
-    const id = req.params.id;
-    
-    await Campground.findByIdAndDelete(id);
-    res.redirect('/campgrounds');
+
+app.use((err , req , res , next)=> {
+    res.send('error occoured'.blue);
 })
 
 
