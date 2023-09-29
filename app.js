@@ -8,6 +8,7 @@ const methodOverride = require('method-override');
 const ejsMate = require('ejs-mate');
 const ExpressError  = require('./utils/ExpressError');
 const WrapAsync = require('./utils/WrapAsync');
+const joi = require('joi');
 
 const app = express();
 const port = 3000;
@@ -27,6 +28,27 @@ mongoose.connect('mongodb://127.0.0.1:27017/Campground').then(() => {
     console.log('error in database connection'.zebra , err);
 })
 
+const validateCampground = (req , res , next) => {
+
+    const campgroundSchema = joi.object({
+        title : joi.string().required(),
+        image : joi.string().required(),
+        price : joi.number().required().min(0),
+        description : joi.string().required(),
+        location : joi.string().required()
+    });
+
+    const {error} = campgroundSchema.validate(req.body);
+    
+    if(error){
+        const msg = error.details.map(el => el.message).join(',');
+        throw new ExpressError(msg , 400);
+    }
+    else{
+        next();
+    }
+}
+
 app.get('/' , (req , res) => {
     res.send('working');
 })
@@ -41,7 +63,7 @@ app.get('/campgrounds/new' , (req , res) => {
     res.render('new');
 });
 
-app.post('/campgrounds/new', WrapAsync(async (req, res, next) => {
+app.post('/campgrounds/new', validateCampground , WrapAsync(async (req, res, next) => {
     const { title, location, image, price, description } = req.body;
 
     const camp = new Campground({
@@ -65,7 +87,7 @@ app.get('/campgrounds/:id/edit' , WrapAsync(async (req , res , next) => {
     res.render('edit' , {camp});
 }));
 
-app.put('/campgrounds/:id/edit' , WrapAsync(async (req , res , next) => {
+app.put('/campgrounds/:id/edit' , validateCampground ,WrapAsync(async (req , res , next) => {
     const id = req.params.id;
     const {title , location , image , price , description} = req.body;
 
