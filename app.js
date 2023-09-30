@@ -50,6 +50,24 @@ const validateCampground = (req , res , next) => {
     }
 }
 
+const validateReview = (req , res , next) => {
+
+    const reviewSchema = joi.object({
+        rating : joi.number().required(),
+        comment : joi.string().required()
+    });
+    
+    const {error} = reviewSchema.validate(req.body);
+
+    if(error){
+        const msg = error.details.map(el => el.message).join(',');
+        throw new ExpressError(msg , 400);
+    }
+    else{
+        next();
+    }
+};
+
 app.get('/' , (req , res) => {
     res.send('working');
 })
@@ -97,7 +115,7 @@ app.put('/campgrounds/:id/edit' , validateCampground ,WrapAsync(async (req , res
     res.redirect(`/campgrounds/${id}`);
 }));
 
-app.post('/campgrounds/:id/reviews' , WrapAsync(async (req, res , next) => {
+app.post('/campgrounds/:id/reviews' , validateReview ,WrapAsync(async (req, res , next) => {
     const id = req.params.id;
     const {rating , comment} = req.body;
     const campground = await Campground.findById(id);
@@ -111,21 +129,18 @@ app.post('/campgrounds/:id/reviews' , WrapAsync(async (req, res , next) => {
     res.redirect(`/campgrounds/${id}`);
 }));
 
-app.delete('/campgrounds/:id' , WrapAsync(async (req , res , next) => {
-    try{
-        const id = req.params.id;
-        
-        await Campground.findByIdAndDelete(id);
-        res.redirect('/campgrounds');
-    }catch(e){
-        next(e);
-    }
+app.delete('/campgrounds/:id', WrapAsync(async (req, res, next) => {
+
+    const id = req.params.id;
+
+    await Campground.findByIdAndDelete(id);
+    res.redirect('/campgrounds');
+
 }));
 
 app.get('/campgrounds/:id' , WrapAsync(async (req , res , next) => {
     const id = req.params.id;
     const campground = await Campground.findById(id).populate('reviews');
-
     res.render('show' , {campground});
 }));
 

@@ -31,17 +31,16 @@
 
   <h2 style="margin-left: 22vw;">Provide reviews and ratings</h2>
 
-  <form action="/campgrounds/<%= campground.id %>/reviews" method="post">
+  <form action="/campgrounds/<%= campground.id %>/reviews" method="post" class="needs-validation" novalidate>
     
     <div style="display: flex; padding: 1vw; width: 40vw; margin : 1vw auto 1vw auto; border-bottom: 1px solid rgb(180, 180, 180)">
       <label for="rating" class="form-label">Rating</label>
       <input type="range" max="5" min="1" name="rating" id="rating" style="margin-left: 3vw; width : 15vw;" class="form-range">
     </div>
   
-    <div style="display: flex; flex-direction: column; padding: 1vw; width: 40vw; margin : 1vw auto 1vw auto">
-        <label for="comment">Comment</label><br>
-        <textarea name="comment" id="comment" cols="60" rows="5" placeholder="Write your thoughts here...">
-        </textarea>
+    <div style="display: flex; flex-direction: column; padding: 1vw; width: 40vw; margin : 0vw auto 1vw auto">
+        <label for="comment" class="form-label">Comment</label><br>
+        <textarea name="comment" id="comment" cols="60" rows="5" placeholder="Write your thoughts here..." required class="form-control"></textarea>
         <button class="btn btn-success mt-3">Submit</button>
     </div>
 
