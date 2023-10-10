@@ -53,7 +53,7 @@ const validateCampground = (req , res , next) => {
 const validateReview = (req , res , next) => {
 
     const reviewSchema = joi.object({
-        rating : joi.number().required(),
+        rating : joi.number().required().min(1).max(5),
         comment : joi.string().required()
     });
     
@@ -128,6 +128,13 @@ app.post('/campgrounds/:id/reviews' , validateReview ,WrapAsync(async (req, res 
     await review.save();
     res.redirect(`/campgrounds/${id}`);
 }));
+
+app.delete('/campgrounds/:id/delete/:reviewID' , WrapAsync(async (req , res , next) => {
+    const {id , reviewID} = req.params;
+    await Campground.findByIdAndUpdate(id , {$pull : {reviews : reviewID}});
+    await Review.findByIdAndDelete(reviewID);
+    res.redirect(`/campgrounds/${id}`);
+}))
 
 app.delete('/campgrounds/:id', WrapAsync(async (req, res, next) => {
 
