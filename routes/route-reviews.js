@@ -4,6 +4,8 @@ const WrapAsync = require('../utils/WrapAsync');
 const ExpressError  = require('../utils/ExpressError');
 const Review = require('../models/review');
 const Campground = require('../models/campgrounds');
+const flash = require('connect-flash');
+
 
 const router = express.Router({mergeParams : true});
 
@@ -37,6 +39,7 @@ router.post('/reviews' , validateReview ,WrapAsync(async (req, res , next) => {
 
     await campground.save();
     await review.save();
+    req.flash('success' , 'Comment and Ratings submitted!');
     res.redirect(`/campgrounds/${id}`);
 }));
 
@@ -44,6 +47,7 @@ router.delete('/:reviewID' , WrapAsync(async (req , res , next) => {
     const {id , reviewID} = req.params;
     await Campground.findByIdAndUpdate(id , {$pull : {reviews : reviewID}});
     await Review.findByIdAndDelete(reviewID);
+    req.flash('deletion' , 'Your comment was removed!');
     res.redirect(`/campgrounds/${id}`);
 }));
 

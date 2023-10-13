@@ -3,12 +3,14 @@ const ejs = require('ejs');
 const mongoose = require('mongoose');
 const path = require('path');
 const colors = require('colors'); 
-
 const methodOverride = require('method-override');
 const ejsMate = require('ejs-mate');
 const ExpressError  = require('./utils/ExpressError');
 const campRoutes = require('./routes/route-campgrounds');
 const reviewRoutes = require('./routes/route-reviews');
+const session = require('express-session');
+const flash = require('connect-flash');
+
 
 const app = express();
 const port = 3000;
@@ -20,6 +22,18 @@ app.engine('ejs',ejsMate);
 app.use(express.json());
 app.use(express.urlencoded({extended : true}));
 app.use(methodOverride('_method'));
+app.use(flash());
+
+app.use(session({
+    secret : 'thisissessionsecret',
+    resave : false , 
+    saveUninitialized : true,
+    cookie : {
+        httpOnly : true,
+        expires : Date.now() + (1000 * 60 * 60 * 24 * 7 ),
+        maxAge : (1000 * 60 * 60 * 24 * 7 ),
+    }
+}))
 
 mongoose.connect('mongodb://127.0.0.1:27017/Campground').then(() => {
     console.log('database connected'.zebra);
@@ -28,7 +42,11 @@ mongoose.connect('mongodb://127.0.0.1:27017/Campground').then(() => {
     console.log('error in database connection'.zebra , err);
 })
 
-
+app.use((req , res , next) => {
+    res.locals.success = req.flash('success');
+    res.locals.deletion = req.flash('deletion');
+    next();
+});
 
 app.use('/' , campRoutes);
 app.use('/campgrounds/:id/' , reviewRoutes);

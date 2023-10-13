@@ -3,6 +3,7 @@ const WrapAsync = require('../utils/WrapAsync');
 const ExpressError  = require('../utils/ExpressError');
 const Campground = require('../models/campgrounds');
 const joi = require('joi');
+const flash = require('connect-flash');
 
 
 const router = express.Router();
@@ -50,6 +51,7 @@ router.post('/campgrounds/new', validateCampground , WrapAsync(async (req, res, 
     });
 
     await camp.save();
+    req.flash('success' , 'New campgound created');
     res.redirect(`/campgrounds/${camp.id}`);
 
 }));
@@ -67,7 +69,7 @@ router.put('/campgrounds/:id/edit' , validateCampground ,WrapAsync(async (req , 
     const {title , location , image , price , description} = req.body;
 
     await Campground.findByIdAndUpdate(id , {'title' : title , 'location' : location , 'image' : image , 'price' : price , 'description' : description});
-
+    req.flash('success' , 'Successfully updated campground');
     res.redirect(`/campgrounds/${id}`);
 }));
 
@@ -76,6 +78,7 @@ router.delete('/campgrounds/:id', WrapAsync(async (req, res, next) => {
     const id = req.params.id;
 
     await Campground.findByIdAndDelete(id);
+    req.flash('deletion' , 'Campground was deleted');
     res.redirect('/campgrounds');
 
 }));
