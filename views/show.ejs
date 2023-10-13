@@ -25,7 +25,7 @@
       <% for (let comment of campground.reviews){ %>
         <div style="padding : 1vw; background-color : rgb(246, 246, 246) ; border-radius : 10px; margin: 1vw 0vw 0vw 0vw;">
           <p><%= comment.comment %></p>
-          <form action="/campgrounds/<%= campground.id %>/delete/<%= comment.id %>?_method=DELETE" method="post">
+          <form action="/campgrounds/<%= campground.id %>/<%= comment.id %>?_method=DELETE" method="post">
             <button class="btn btn-light" style="border: 1px solid rgb(216, 215, 215);">Remove</button>
           </form>
         </div>
