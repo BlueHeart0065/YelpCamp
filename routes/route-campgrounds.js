@@ -29,17 +29,25 @@ const validateCampground = (req , res , next) => {
     }
 }
 
+const isLoggedin = (req , res , next) => {
+    if(!req.isAuthenticated()){
+        req.flash('failure' , 'You need to be logged in to complete the action');
+        return res.redirect('/login');
+    }
+    next();
+} 
+
 router.get('/campgrounds', WrapAsync(async (req , res , next) => {
     const campgrounds = await Campground.find({});
 
     res.render('index' , {campgrounds});
 }));
 
-router.get('/campgrounds/new' , (req , res) => {
+router.get('/campgrounds/new' ,  isLoggedin ,(req , res) => {
     res.render('new');
 });
 
-router.post('/campgrounds/new', validateCampground , WrapAsync(async (req, res, next) => {
+router.post('/campgrounds/new', validateCampground ,isLoggedin ,WrapAsync(async (req, res, next) => {
     const { title, location, image, price, description } = req.body;
 
     const camp = new Campground({

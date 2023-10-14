@@ -54,6 +54,7 @@ mongoose.connect('mongodb://127.0.0.1:27017/Campground').then(() => {
 })
 
 app.use((req , res , next) => {
+    res.locals.currentUser = req.user;
     res.locals.success = req.flash('success');
     res.locals.deletion = req.flash('deletion');
     res.locals.failure = req.flash('failure');
