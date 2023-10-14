@@ -10,6 +10,10 @@ const campRoutes = require('./routes/route-campgrounds');
 const reviewRoutes = require('./routes/route-reviews');
 const session = require('express-session');
 const flash = require('connect-flash');
+const passport = require('passport');
+const passportLocal = require('passport-local');
+const User = require('./models/user');
+const userRoutes = require('./routes/route-users');
 
 
 const app = express();
@@ -33,7 +37,14 @@ app.use(session({
         expires : Date.now() + (1000 * 60 * 60 * 24 * 7 ),
         maxAge : (1000 * 60 * 60 * 24 * 7 ),
     }
-}))
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.use(new passportLocal(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
 mongoose.connect('mongodb://127.0.0.1:27017/Campground').then(() => {
     console.log('database connected'.zebra);
@@ -45,15 +56,17 @@ mongoose.connect('mongodb://127.0.0.1:27017/Campground').then(() => {
 app.use((req , res , next) => {
     res.locals.success = req.flash('success');
     res.locals.deletion = req.flash('deletion');
+    res.locals.failure = req.flash('failure');
     next();
 });
 
 app.use('/' , campRoutes);
 app.use('/campgrounds/:id/' , reviewRoutes);
+app.use('/' , userRoutes);
 
 app.get('/' , (req , res) => {
     res.send('working');
-})
+});
 
 app.all('*' , (req , res , next) => {
     next(new ExpressError('Page not found' , 404));
