@@ -5,6 +5,13 @@ const WrapAsync = require('../utils/WrapAsync');
 
 const router = express.Router();
 
+const storeReturn = (req , res , next) => {
+    if(req.session.returnTo){
+        res.locals.returnTo = req.session.returnTo;
+    }
+    next();
+}
+
 router.get('/register' , (req , res) => {
     res.render('register');
 });
@@ -34,9 +41,11 @@ router.get('/login' , (req , res) => {
     res.render('login');
 });
 
-router.post('/login' , passport.authenticate('local' , {failureFlash : true , failureRedirect : '/login'}) ,(req , res) => {
-    req.flash('success' , 'Welcome to YelpCamp !!');
-    res.redirect('/campgrounds');
+router.post('/login' , storeReturn ,passport.authenticate('local' , {failureFlash : true , failureRedirect : '/login'}) ,(req , res) => {
+    req.flash('success' , `Welcome to YelpCamp ${req.session.passport.user} !!`);
+    const redirectUrl = res.locals.returnTo || '/campgrounds';
+    delete req.session.returnTo;
+    res.redirect(redirectUrl);
 });
 
 router.get('/logout' , (req , res) => {

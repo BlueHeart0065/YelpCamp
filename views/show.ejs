@@ -4,6 +4,7 @@
     <img src="<%= campground.image %>" class="card-img-top" alt="">
     <div class="card-body">
       <h5 class="card-title"><%= campground.title %></h5>
+      <h6 class="card-title" style="color: rgb(40, 169, 249);">Author : <%= campground.author.username %></h6>
       <p class="card-text"><%= campground.description %></p>
     </div>
     <ul class="list-group list-group-flush">
@@ -11,12 +12,14 @@
         <li class="list-group-item">Rs.<%= campground.price %>/night</li>
     </ul>
     <div class="card-body">
-      <a href="/campgrounds/<%= campground.id %>/edit" class="card-link btn btn-warning">Edit</a>
-      <form action="/campgrounds/<%= campground.id %>?_method=DELETE" method="post" class="d-inline">
+      <% if(currentUser && campground.author.equals(currentUser.id)){ %>
+        <a href="/campgrounds/<%= campground.id %>/edit" class="card-link btn btn-warning">Edit</a>
+        <form action="/campgrounds/<%= campground.id %>?_method=DELETE" method="post" class="d-inline">
 
-        <button class="btn btn-danger">Delete</button>
+          <button class="btn btn-danger">Delete</button>
 
-      </form>
+        </form>
+      <% } %>
       <a href="/campgrounds" class="card-link btn btn-info" >All Campgrounds</a>
     </div>
 
@@ -25,9 +28,12 @@
       <% for (let comment of campground.reviews){ %>
         <div style="padding : 1vw; background-color : rgb(246, 246, 246) ; border-radius : 10px; margin: 1vw 0vw 0vw 0vw;">
           <p><%= comment.comment %></p>
-          <form action="/campgrounds/<%= campground.id %>/<%= comment.id %>?_method=DELETE" method="post">
-            <button class="btn btn-light" style="border: 1px solid rgb(216, 215, 215);">Remove</button>
-          </form>
+          <p style="text-align: right;"> - <%= comment.author.username  %></p>
+          <% if(currentUser.equals(comment.author)) { %>
+            <form action="/campgrounds/<%= campground.id %>/<%= comment.id %>?_method=DELETE" method="post">
+              <button class="btn btn-light" style="border: 1px solid rgb(216, 215, 215);">Remove</button>
+            </form>
+          <% } %>
         </div>
       <% } %>
     </div>

@@ -31,11 +31,24 @@ const validateCampground = (req , res , next) => {
 
 const isLoggedin = (req , res , next) => {
     if(!req.isAuthenticated()){
+        req.session.returnTo = req.originalUrl;
         req.flash('failure' , 'You need to be logged in to complete the action');
         return res.redirect('/login');
     }
     next();
 } 
+
+const isAuthor = async (req , res , next) => {
+    const id = req.params.id;
+    const camp = await Campground.findById(id);
+    const authorID = camp.author;
+
+    if(req.user.id != authorID){
+        req.flash('failure' , 'You do not have the permission to perform that action');
+        return res.redirect(`/campgrounds/${id}`);
+    }
+    next();
+}
 
 router.get('/campgrounds', WrapAsync(async (req , res , next) => {
     const campgrounds = await Campground.find({});
@@ -55,7 +68,8 @@ router.post('/campgrounds/new', validateCampground ,isLoggedin ,WrapAsync(async 
         location: location,
         image: image,
         price: price,
-        description: description
+        description: description,
+        author : req.user.id
     });
 
     await camp.save();
@@ -64,15 +78,13 @@ router.post('/campgrounds/new', validateCampground ,isLoggedin ,WrapAsync(async 
 
 }));
 
-router.get('/campgrounds/:id/edit' , WrapAsync(async (req , res , next) => {
+router.get('/campgrounds/:id/edit' , isLoggedin , isAuthor ,WrapAsync(async (req , res , next) => {
     const id = req.params.id;
-
     const camp = await Campground.findById(id);
-
     res.render('edit' , {camp});
 }));
 
-router.put('/campgrounds/:id/edit' , validateCampground ,WrapAsync(async (req , res , next) => {
+router.put('/campgrounds/:id/edit' , isLoggedin , isAuthor ,validateCampground ,WrapAsync(async (req , res , next) => {
     const id = req.params.id;
     const {title , location , image , price , description} = req.body;
 
@@ -81,10 +93,10 @@ router.put('/campgrounds/:id/edit' , validateCampground ,WrapAsync(async (req , 
     res.redirect(`/campgrounds/${id}`);
 }));
 
-router.delete('/campgrounds/:id', WrapAsync(async (req, res, next) => {
+router.delete('/campgrounds/:id', isLoggedin , isAuthor , WrapAsync(async (req, res, next) => {
 
     const id = req.params.id;
-
+    
     await Campground.findByIdAndDelete(id);
     req.flash('deletion' , 'Campground was deleted');
     res.redirect('/campgrounds');
@@ -93,7 +105,12 @@ router.delete('/campgrounds/:id', WrapAsync(async (req, res, next) => {
 
 router.get('/campgrounds/:id' , WrapAsync(async (req , res , next) => {
     const id = req.params.id;
-    const campground = await Campground.findById(id).populate('reviews');
+    const campground = await Campground.findById(id).populate({
+        path : 'reviews',
+        populate : {
+            path : 'author'
+        }
+    }).populate('author');
     res.render('show' , {campground});
 }));
 

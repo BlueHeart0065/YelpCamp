@@ -28,12 +28,31 @@ const validateReview = (req , res , next) => {
     }
 };
 
-router.post('/reviews' , validateReview ,WrapAsync(async (req, res , next) => {
+
+const isLoggedin = (req , res , next) => {
+    if(!req.isAuthenticated()){
+        req.flash('failure' , 'You need to be logged in to complete the action');
+        return res.redirect('/login');
+    }
+    next();
+} 
+
+const isAuthor = async (req , res , next) => {
+    const id = req.params.id;
+    const reviewID = req.params.reviewID;
+    const authorId = await Review.findById(reviewID);
+    if(authorId != req.user.id){
+        req.flash('failure' ,  `Cannot delete someone else's comment`);
+        return res.redirect(`/campgrounds/${id}`);
+    }
+}
+
+router.post('/reviews' , isLoggedin ,validateReview ,WrapAsync(async (req, res , next) => {
     const id = req.params.id;
     const {rating , comment} = req.body;
     const campground = await Campground.findById(id);
 
-    const review = new Review({rating , comment});
+    const review = new Review({rating , comment , author : req.user.id});
     
     campground.reviews.push(review);
 
@@ -43,7 +62,7 @@ router.post('/reviews' , validateReview ,WrapAsync(async (req, res , next) => {
     res.redirect(`/campgrounds/${id}`);
 }));
 
-router.delete('/:reviewID' , WrapAsync(async (req , res , next) => {
+router.delete('/:reviewID' , isAuthor ,isLoggedin ,WrapAsync(async (req , res , next) => {
     const {id , reviewID} = req.params;
     await Campground.findByIdAndUpdate(id , {$pull : {reviews : reviewID}});
     await Review.findByIdAndDelete(reviewID);
