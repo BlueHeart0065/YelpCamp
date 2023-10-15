@@ -5,6 +5,9 @@ const Campground = require('../models/campgrounds');
 const joi = require('joi');
 const flash = require('connect-flash');
 
+//controllers
+const campgrounds = require('../controllers/campgrounds');
+
 
 const router = express.Router();
 
@@ -50,68 +53,18 @@ const isAuthor = async (req , res , next) => {
     next();
 }
 
-router.get('/campgrounds', WrapAsync(async (req , res , next) => {
-    const campgrounds = await Campground.find({});
+router.get('/campgrounds', WrapAsync(campgrounds.index));
 
-    res.render('index' , {campgrounds});
-}));
+router.route('/campgrounds/new')
+    .get( isLoggedin , campgrounds.new)
+    .post(validateCampground ,isLoggedin ,WrapAsync(campgrounds.createNew));
 
-router.get('/campgrounds/new' ,  isLoggedin ,(req , res) => {
-    res.render('new');
-});
+router.route('/campgrounds/:id/edit')
+    .get( isLoggedin , isAuthor ,WrapAsync(campgrounds.edit))
+    .put( isLoggedin , isAuthor ,validateCampground ,WrapAsync(campgrounds.createEdit));
 
-router.post('/campgrounds/new', validateCampground ,isLoggedin ,WrapAsync(async (req, res, next) => {
-    const { title, location, image, price, description } = req.body;
-
-    const camp = new Campground({
-        title: title,
-        location: location,
-        image: image,
-        price: price,
-        description: description,
-        author : req.user.id
-    });
-
-    await camp.save();
-    req.flash('success' , 'New campgound created');
-    res.redirect(`/campgrounds/${camp.id}`);
-
-}));
-
-router.get('/campgrounds/:id/edit' , isLoggedin , isAuthor ,WrapAsync(async (req , res , next) => {
-    const id = req.params.id;
-    const camp = await Campground.findById(id);
-    res.render('edit' , {camp});
-}));
-
-router.put('/campgrounds/:id/edit' , isLoggedin , isAuthor ,validateCampground ,WrapAsync(async (req , res , next) => {
-    const id = req.params.id;
-    const {title , location , image , price , description} = req.body;
-
-    await Campground.findByIdAndUpdate(id , {'title' : title , 'location' : location , 'image' : image , 'price' : price , 'description' : description});
-    req.flash('success' , 'Successfully updated campground');
-    res.redirect(`/campgrounds/${id}`);
-}));
-
-router.delete('/campgrounds/:id', isLoggedin , isAuthor , WrapAsync(async (req, res, next) => {
-
-    const id = req.params.id;
-    
-    await Campground.findByIdAndDelete(id);
-    req.flash('deletion' , 'Campground was deleted');
-    res.redirect('/campgrounds');
-
-}));
-
-router.get('/campgrounds/:id' , WrapAsync(async (req , res , next) => {
-    const id = req.params.id;
-    const campground = await Campground.findById(id).populate({
-        path : 'reviews',
-        populate : {
-            path : 'author'
-        }
-    }).populate('author');
-    res.render('show' , {campground});
-}));
+router.route('/campgrounds/:id')
+    .delete( isLoggedin , isAuthor , WrapAsync(campgrounds.delete))
+    .get( WrapAsync(campgrounds.show));
 
 module.exports = router;

@@ -1,5 +1,7 @@
 <% layout('layouts/boilerplate') %>
 
+<link rel="stylesheet" href="/stars.css">
+
 <div class="card mb-5" style="width: 40rem; margin : 2vw auto 2vw auto;">
     <img src="<%= campground.image %>" class="card-img-top" alt="">
     <div class="card-body">
@@ -27,9 +29,12 @@
       <h4>Comments</h4>
       <% for (let comment of campground.reviews){ %>
         <div style="padding : 1vw; background-color : rgb(246, 246, 246) ; border-radius : 10px; margin: 1vw 0vw 0vw 0vw;">
+          <p class="starability-result" data-rating="<%= comment.rating %>" style="transform: scale(0.7) translateX(-2vw);">
+            Rated: <%= comment.rating  %> stars
+          </p>
           <p><%= comment.comment %></p>
           <p style="text-align: right;"> - <%= comment.author.username  %></p>
-          <% if(currentUser.equals(comment.author)) { %>
+          <% if(currentUser && comment.author.equals(currentUser.id)) { %>
             <form action="/campgrounds/<%= campground.id %>/<%= comment.id %>?_method=DELETE" method="post">
               <button class="btn btn-light" style="border: 1px solid rgb(216, 215, 215);">Remove</button>
             </form>
@@ -45,8 +50,21 @@
   <form action="/campgrounds/<%= campground.id %>/reviews" method="post" class="needs-validation" novalidate>
     
     <div style="display: flex; padding: 1vw; width: 40vw; margin : 1vw auto 1vw auto; border-bottom: 1px solid rgb(180, 180, 180)">
-      <label for="rating" class="form-label">Rating</label>
-      <input type="range" max="5" min="1" name="rating" id="rating" style="margin-left: 3vw; width : 15vw;" class="form-range">
+
+      <fieldset class="starability-grow">
+        <legend>Rating</legend>
+        <input type="radio" id="no-rate" class="input-no-rate" name="rating" value="1" checked aria-label="No rating." />
+        <input type="radio" id="first-rate1" name="rating" value="1" />
+        <label for="first-rate1" title="Terrible">1 star</label>
+        <input type="radio" id="first-rate2" name="rating" value="2" />
+        <label for="first-rate2" title="Not good">2 stars</label>
+        <input type="radio" id="first-rate3" name="rating" value="3" />
+        <label for="first-rate3" title="Average">3 stars</label>
+        <input type="radio" id="first-rate4" name="rating" value="4" />
+        <label for="first-rate4" title="Very good">4 stars</label>
+        <input type="radio" id="first-rate5" name="rating" value="5" />
+        <label for="first-rate5" title="Amazing">5 stars</label>
+      </fieldset>
     </div>
   
     <div style="display: flex; flex-direction: column; padding: 1vw; width: 40vw; margin : 0vw auto 1vw auto">
