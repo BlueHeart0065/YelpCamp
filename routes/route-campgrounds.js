@@ -4,10 +4,12 @@ const ExpressError  = require('../utils/ExpressError');
 const Campground = require('../models/campgrounds');
 const joi = require('joi');
 const flash = require('connect-flash');
+const { storage } = require('../cloudinary/index');
+const multer = require('multer');
+const upload = multer({storage})
 
 //controllers
 const campgrounds = require('../controllers/campgrounds');
-
 
 const router = express.Router();
 
@@ -15,7 +17,7 @@ const validateCampground = (req , res , next) => {
 
     const campgroundSchema = joi.object({
         title : joi.string().required(),
-        image : joi.string().required(),
+        // image : joi.string().required(),
         price : joi.number().required().min(0),
         description : joi.string().required(),
         location : joi.string().required()
@@ -57,7 +59,7 @@ router.get('/campgrounds', WrapAsync(campgrounds.index));
 
 router.route('/campgrounds/new')
     .get( isLoggedin , campgrounds.new)
-    .post(validateCampground ,isLoggedin ,WrapAsync(campgrounds.createNew));
+    .post( isLoggedin, upload.array('image'), validateCampground ,WrapAsync(campgrounds.createNew));
 
 router.route('/campgrounds/:id/edit')
     .get( isLoggedin , isAuthor ,WrapAsync(campgrounds.edit))

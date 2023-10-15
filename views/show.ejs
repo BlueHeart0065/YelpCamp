@@ -3,7 +3,9 @@
 <link rel="stylesheet" href="/stars.css">
 
 <div class="card mb-5" style="width: 40rem; margin : 2vw auto 2vw auto;">
-    <img src="<%= campground.image %>" class="card-img-top" alt="">
+    <% for(image of campground.images){ %>
+      <img src="<%= image.url %>" class="card-img-top" alt="">
+    <% } %>
     <div class="card-body">
       <h5 class="card-title"><%= campground.title %></h5>
       <h6 class="card-title" style="color: rgb(40, 169, 249);">Author : <%= campground.author.username %></h6>
