@@ -58,10 +58,10 @@ mongoose.connect('mongodb://127.0.0.1:27017/Campground').then(() => {
 })
 
 app.use((req , res , next) => {
-    console.log('----------------------------------------- SESSION -----------------------------------------'.blue);
-    console.log(req.session);
-    console.log('----------------------------------------- USER -----------------------------------------'.blue);
-    console.log(req.user);
+    // console.log('----------------------------------------- SESSION -----------------------------------------'.blue);
+    // console.log(req.session);
+    // console.log('----------------------------------------- USER -----------------------------------------'.blue);
+    // console.log(req.user);
     res.locals.currentUser = req.user;
     res.locals.success = req.flash('success');
     res.locals.deletion = req.flash('deletion');

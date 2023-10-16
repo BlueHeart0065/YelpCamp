@@ -20,7 +20,8 @@ const validateCampground = (req , res , next) => {
         // image : joi.string().required(),
         price : joi.number().required().min(0),
         description : joi.string().required(),
-        location : joi.string().required()
+        location : joi.string().required(),
+        deleteimages : joi.array()
     });
 
     const {error} = campgroundSchema.validate(req.body);
@@ -63,7 +64,7 @@ router.route('/campgrounds/new')
 
 router.route('/campgrounds/:id/edit')
     .get( isLoggedin , isAuthor ,WrapAsync(campgrounds.edit))
-    .put( isLoggedin , isAuthor ,validateCampground ,WrapAsync(campgrounds.createEdit));
+    .put( isLoggedin , isAuthor , upload.array('image') , validateCampground ,WrapAsync(campgrounds.createEdit));
 
 router.route('/campgrounds/:id')
     .delete( isLoggedin , isAuthor , WrapAsync(campgrounds.delete))

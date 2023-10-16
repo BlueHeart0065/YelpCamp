@@ -3,9 +3,26 @@
 <link rel="stylesheet" href="/stars.css">
 
 <div class="card mb-5" style="width: 40rem; margin : 2vw auto 2vw auto;">
-    <% for(image of campground.images){ %>
-      <img src="<%= image.url %>" class="card-img-top" alt="">
+  <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
+    <div class="carousel-inner">
+      <% campground.images.forEach((image , i ) => { %>
+      <div class="carousel-item <%= i === 0 ? 'active' : '' %>">
+        <img src="<%= image.url %>" class="d-block w-100" alt="">
+      </div>
+      <% }) %>
+
+    </div>
+    <% if(campground.images.length > 1) { %>
+    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
+      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
+      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Next</span>
+    </button>
     <% } %>
+  </div>
     <div class="card-body">
       <h5 class="card-title"><%= campground.title %></h5>
       <h6 class="card-title" style="color: rgb(40, 169, 249);">Author : <%= campground.author.username %></h6>
