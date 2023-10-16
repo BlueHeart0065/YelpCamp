@@ -9,6 +9,7 @@
   "author": "Sahil Batgeri",
   "license": "ISC",
   "dependencies": {
+    "@mapbox/mapbox-sdk": "^0.15.3",
     "cloudinary": "^1.41.0",
     "colors": "^1.4.0",
     "connect-flash": "^0.1.1",

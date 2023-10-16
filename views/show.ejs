@@ -2,7 +2,14 @@
 
 <link rel="stylesheet" href="/stars.css">
 
+
+
+
+
 <div class="card mb-5" style="width: 40rem; margin : 2vw auto 2vw auto;">
+
+  <div id='map' style='width: 640px; height: 400px; margin-bottom : 2vw;'></div>
+
   <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
     <div class="carousel-inner">
       <% campground.images.forEach((image , i ) => { %>
@@ -93,5 +100,27 @@
     </div>
 
   </form>
+
+  <script>
+    mapboxgl.accessToken = '<%- process.env.MAPBOX_TOKEN %>';
+    const campground = <%- JSON.stringify(campground) %>;
+
+    const map = new mapboxgl.Map({
+        container: 'map', // container ID
+        style: 'mapbox://styles/mapbox/streets-v12', // style URL
+        center: campground.geometry.coordinates, // starting position [lng, lat]
+        zoom: 9, // starting zoom
+    });
+
+    new mapboxgl.Marker()
+      .setLngLat(campground.geometry.coordinates)
+      .setPopup(
+        new mapboxgl.Popup({offset : 40})
+          .setHTML(
+            `<h6>  ${campground.title}  </h6>`
+          )
+      )
+      .addTo(map)
+    </script>
 
   
