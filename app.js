@@ -18,11 +18,16 @@ const passport = require('passport');
 const passportLocal = require('passport-local');
 const User = require('./models/user');
 const userRoutes = require('./routes/route-users');
+const expressMongoSanitize = require('express-mongo-sanitize');
+const helmet = require('helmet');
+const MongoStore = require('connect-mongo');
+const { func } = require('joi');
 
 
 const app = express();
 const port = 3000;
 
+app.use(expressMongoSanitize());
 app.use(express.static(path.join(__dirname , 'public')));
 app.use(express.static(path.join(__dirname , 'views')));
 app.set('view engine', 'ejs');
@@ -31,8 +36,77 @@ app.use(express.json());
 app.use(express.urlencoded({extended : true}));
 app.use(methodOverride('_method'));
 app.use(flash());
+app.use(helmet());
+
+const scriptSrcUrls = [
+    "https://stackpath.bootstrapcdn.com/",
+    "https://api.tiles.mapbox.com/",
+    "https://api.mapbox.com/",
+    "https://kit.fontawesome.com/",
+    "https://cdnjs.cloudfare.com/",
+    "https://cdn.jsdelivr.net"
+];
+
+const styleSrcUrls = [
+    "https://kit-free.fontawesome.com/",
+    "https://api.mapbox.com/",
+    "https://api.tiles.mapbox.com/",
+    "https://fonts.googleapis.com/",
+    "https://use.fontawesome.com/",
+    "https://cdn.jsdelivr.net"
+
+];
+
+const connectSrcUrls = [
+    "https://api.mapbox.com/",
+    "https://a.tiles.mapbox.com/",
+    "https://b.tiles.mapbox.com/",
+    "https://events.mapbox.com/"
+];
+
+const fontUrls = [];
+
+app.use(
+    helmet.contentSecurityPolicy({
+        directives: {
+            defaultSrc : [],
+            connectSrc : ["'self'" , ...connectSrcUrls],
+            scriptSrc : ["'unsafe-inline'" , "'self'" , ...scriptSrcUrls],
+            styleSrc : ["'self'" , "'unsafe-inline'" , ...styleSrcUrls],
+            workerSrc : ["'self'" , "blob:"],
+            objectSrc : [],
+            imgSrc : [
+                "'self'",
+                "blob:",
+                "data:",
+                "https://res.cloudinary.com/dox2e0yag/",
+                "https://images.unsplash.com/"
+            ],
+            fontSrc : ["'self'" , ...fontUrls], 
+        },
+
+        
+    })
+);
+
+const dbUrl = process.env.MONGO_ATLAS;
+// const dbUrl = 'mongodb://127.0.0.1:27017/Campground';
+
+const store = MongoStore.create({
+    mongoUrl : dbUrl,
+    touchAfter: 24 * 60 * 60,
+    crypto: {
+        secret: 'thisshouldbeabettersecret!'
+    }
+});
+
+store.on('error' , function(e){
+    console.log('session connection error'.blue , e);
+});
 
 app.use(session({
+    store,
+    name : 'session',
     secret : 'thisissessionsecret',
     resave : false , 
     saveUninitialized : true,
@@ -50,7 +124,7 @@ passport.use(new passportLocal(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
-mongoose.connect('mongodb://127.0.0.1:27017/Campground').then(() => {
+mongoose.connect(dbUrl).then(() => {
     console.log('database connected'.blue);
 })
 .catch(err => {

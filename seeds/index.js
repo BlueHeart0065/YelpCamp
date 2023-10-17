@@ -4,7 +4,10 @@ const cities = require('./cities');
 const colors = require('colors');
 const {places , descriptors} = require('./seedHelpers');
 
-mongoose.connect('mongodb://127.0.0.1:27017/Campground').then(() => {
+const dbUrl = process.env.MONGO_ATLAS;
+
+
+mongoose.connect(dbUrl).then(() => {
     console.log('database connected'.zebra);
 })
 .catch(err => {
@@ -21,7 +24,7 @@ const seedDB = async () => {
         const price = Math.floor(Math.random() * 3000);
 
         const camp = new Campground({
-            author : '652b8c5b13e1af1da47d09ed',
+            author : '652eb0b251a386f2a143e393',
             location : `${cities[randomNumber].city}, ${cities[randomNumber].state}`,
             geometry : {
                 type : 'Point', 
