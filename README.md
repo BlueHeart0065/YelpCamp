@@ -2,7 +2,7 @@
 
 YelpCamp is a comprehensive website dedicated to helping users find and share great campsites from all around the world. Whether you are a seasoned camper or just getting started, YelpCamp provides a user-friendly platform to explore, create, and review campsites globally.
 
-#Website link : https://yelpcamp-ck6i.onrender.com/ 
+## Website link : https://yelpcamp-ck6i.onrender.com/ 
 NOTE : It may take 2-3 minutes to load the website.
 
 ## Features
