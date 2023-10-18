@@ -40,3 +40,8 @@ To get started with YelpCamp, simply create an account or log in as a guest to s
 ---
 
 YelpCamp is your one-stop destination for discovering the perfect camping experience. Join our growing community of outdoor enthusiasts and embark on unforgettable adventures!
+
+## Disclaimer
+This is just a dummy website and not an official website like Yelp. This platform is built by me just to practice web-development and not to provide any services!!.
+All the information shown in the website is just a fake data . None of the camps shown in the website exist in the real world. 
+
